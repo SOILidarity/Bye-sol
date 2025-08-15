@@ -30,6 +30,7 @@
             --font-secondary: 'Montserrat', sans-serif;
             --transition-speed: 0.3s ease;
             --animation-speed: 0.6s ease-out;
+            --header-height: 80px; /* Adjusted header height */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
@@ -38,13 +39,19 @@
             font-family: var(--font-primary); color: var(--text-color); background-color: var(--background-color);
             line-height: 1.7; overflow-x: hidden; transition: overflow 0.3s;
         }
-        body.modal-active { overflow: hidden; }
+        body.modal-active, body.nav-open { overflow: hidden; }
 
         /* 2. Cursor Glow Effect */
         .cursor-glow {
-            position: fixed; top: 0; left: 0; width: 40px; height: 40px; border-radius: 50%;
-            background: rgba(46, 125, 50, 0.2); pointer-events: none; z-index: 9999;
-            transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s, background-color 0.3s;
+            display: none; /* Often disabled for mobile for better performance */
+        }
+        @media (min-width: 1024px) {
+            .cursor-glow {
+                display: block;
+                position: fixed; top: 0; left: 0; width: 40px; height: 40px; border-radius: 50%;
+                background: rgba(46, 125, 50, 0.2); pointer-events: none; z-index: 9999;
+                transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s, background-color 0.3s;
+            }
         }
         
         /* 3. Preloader */
@@ -67,16 +74,12 @@
 
         /* 5. Header and Navigation */
         .header {
-            position: fixed; top: 0; width: 100%; z-index: 1000; padding: 20px 5%; display: flex;
-            justify-content: space-between; align-items: center; transition: background-color 0.4s, box-shadow 0.4s, padding 0.4s;
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 15px 5%; display: flex;
+            justify-content: space-between; align-items: center; transition: background-color 0.4s, box-shadow 0.4s, padding 0.4s; height: var(--header-height);
         }
-        .header.scrolled { background-color: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 15px 5%; }
-        .logo { text-decoration: none; }
-        .logo img {
-            height: 60px;
-            width: auto;
-            vertical-align: middle;
-        }
+        .header.scrolled { background-color: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .logo { text-decoration: none; z-index: 1001; }
+        .logo img { height: 50px; width: auto; vertical-align: middle; }
         .nav-links { display: flex; align-items: center; gap: 20px; }
         .nav-links a { text-decoration: none; color: var(--text-color); font-weight: 600; position: relative; padding-bottom: 5px; }
         .nav-links a:not(.btn-nav)::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 0; height: 3px; background-color: var(--primary-color); transition: width var(--transition-speed); }
@@ -84,9 +87,43 @@
         .btn-nav { padding: 10px 20px; font-size: 0.9rem; }
         #account-link { cursor: pointer; }
 
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 30px;
+            height: 25px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1001;
+        }
+        .hamburger .bar {
+            width: 30px;
+            height: 3px;
+            background-color: var(--text-color);
+            border-radius: 5px;
+            transition: all 0.3s ease-in-out;
+        }
+        .hamburger.active .bar { background-color: var(--text-color); }
+        .hamburger.active .bar:nth-child(1) { transform: rotate(45deg) translate(7px, 6px); }
+        .hamburger.active .bar:nth-child(2) { opacity: 0; }
+        .hamburger.active .bar:nth-child(3) { transform: rotate(-45deg) translate(7px, -6px); }
+
+
         /* 6. Hero Section */
-        #hero { background-color: #E8F5E9; height: 100vh; display: flex; align-items: center; position: relative; overflow: hidden; }
-        .hero-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: center; gap: 40px; width: 100%; }
+        #hero { 
+            background-color: #E8F5E9; 
+            min-height: 100vh; /* Use min-height for flexibility */
+            display: flex; 
+            align-items: center; 
+            position: relative; 
+            overflow: hidden; 
+            padding-top: var(--header-height); /* Add padding to push content down */
+        }
+        .hero-content { display: grid; grid-template-columns: 1fr; align-items: center; gap: 40px; width: 100%; }
+        .hero-text .subtitle { font-weight: 600; color: var(--primary-color); }
         .hero-text h1 { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
         .hero-text h1 .word { display: inline-block; transform: translateY(110%); transition: transform 0.8s cubic-bezier(0.2, 1, 0.3, 1); }
         .hero-text p, .hero-text .btn { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
@@ -194,16 +231,6 @@
             margin-top: 40px;
             grid-template-columns: 1fr;
         }
-        @media (min-width: 600px) {
-            .ingredients-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        @media (min-width: 1024px) {
-            .ingredients-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
         .ingredient-item-wrapper {
             display: flex;
             flex-direction: column;
@@ -281,7 +308,7 @@
         #calc-output { font-size: 1.2rem; font-weight: 600; margin-top: 20px; }
         #calc-output span { color: var(--primary-color); font-size: 1.8rem; font-family: var(--font-secondary); }
         #pre-order { background-color: var(--white-color); }
-        .pre-order-card { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 50px; align-items: center; background-color: var(--white-color); padding: 50px; border-radius: 20px; box-shadow: 0 15px 50px rgba(0,0,0,0.1); }
+        .pre-order-card { display: grid; grid-template-columns: 1fr; gap: 50px; align-items: center; background-color: var(--white-color); padding: 50px; border-radius: 20px; box-shadow: 0 15px 50px rgba(0,0,0,0.1); }
         .pre-order-image img {
             width: 100%;
             max-width: 350px;
@@ -313,16 +340,7 @@
             margin-top: 40px;
             grid-template-columns: 1fr;
         }
-        @media (min-width: 500px) {
-            .team-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        @media (min-width: 900px) {
-            .team-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
+        
         .team-member {
             background: #f9f9f9;
             padding: 25px;
@@ -389,6 +407,10 @@
         .footer-bottom p { max-width: 100%; color: #999; font-size: 0.9rem; }
         
         /* Scroll Animations & Accessibility */
+        section[id] {
+            scroll-margin-top: var(--header-height);
+        }
+
         [data-stagger-children] > * {
             opacity: 0;
             transform: translateY(30px);
@@ -415,12 +437,79 @@
         
         @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
         
-        /* Responsive Design */
+        /* --- Media Queries for Responsive Design --- */
+
+        /* Laptops / Desktops */
+        @media (min-width: 1024px) {
+            .hero-content { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+            .ingredients-grid { grid-template-columns: repeat(4, 1fr); }
+            .pre-order-card { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        }
+
+        /* Tablets */
+        @media (min-width: 769px) and (max-width: 1023px) {
+            .ingredients-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (min-width: 500px) {
+             .team-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+        }
+        
+        /* Mobile Devices */
         @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .hero-content { text-align: center; }
-            .hero-image { margin-top: 40px; }
-            #story { min-height: 200vh; }
+            .container { padding: 80px 0; }
+
+            /* --- FIXED: Added fixed padding to header to keep hamburger icon onscreen --- */
+            .header {
+                padding-left: 25px;
+                padding-right: 25px;
+            }
+
+            .hamburger { display: flex; }
+            .nav-links {
+                position: fixed;
+                top: 0; right: 0;
+                height: 100%;
+                width: 100%;
+                background-color: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(8px);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                transform: translateX(100%);
+                transition: transform 0.4s cubic-bezier(0.2, 1, 0.3, 1);
+            }
+            .nav-links.active {
+                transform: translateX(0);
+            }
+            .nav-links {
+                gap: 25px;
+            }
+            .nav-links a {
+                font-size: 1.2rem;
+            }
+            .nav-links .btn-nav {
+                padding: 12px 28px;
+                font-size: 1rem;
+            }
+            #hero {
+                align-items: flex-start;
+                padding-top: calc(var(--header-height) + 40px);
+            }
+            #hero .container {
+                padding: 0;
+            }
+            .hero-content { 
+                text-align: center; 
+                display: flex;
+                flex-direction: column;
+            }
+            .hero-image { 
+                margin-top: 40px; 
+                order: -1;
+            }
+
+            #story { min-height: 250vh; }
         }
     </style>
 </head>
@@ -437,9 +526,14 @@
             <a href="#philosophy" class="nav-item">Philosophy</a>
             <a href="#story" class="nav-item">Story</a>
             <a href="#ingredients" class="nav-item">Ingredients</a>
-            <a href="#" id="account-link">My Account</a>
+            <a href="#" id="account-link" class="nav-item">My Account</a>
             <a href="#pre-order" class="btn btn-nav">Be the First to Know</a>
         </nav>
+        <button class="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
     </header>
 
     <main>
@@ -473,7 +567,6 @@
                         <p>Our mission is to replace harsh synthetic compounds with powerful, biodegradable ingredients derived from nature, reducing chemical exposure and our collective ecological footprint.</p>
                     </div>
                     <div class="philosophy-image animate-on-scroll slide-in-right">
-                        <!-- FIXED: Replaced Unsplash link with a GitHub link from the project -->
                         <img src="https://raw.githubusercontent.com/SOILidarity/Bye-sol/7ac9a4f379d897acef94103e151cf95e9674c98c/images/image_2025-08-16_013016970.png" alt="Natural cleaning essence">
                     </div>
                 </div>
@@ -714,7 +807,7 @@
 
             // --- Cursor Glow Effect ---
             const cursorGlow = document.querySelector('.cursor-glow');
-            if (cursorGlow) {
+            if (cursorGlow && window.matchMedia('(min-width: 1024px)').matches) {
                 const interactiveElements = document.querySelectorAll('a, .btn, button, .ingredient-card, .quiz-option, input');
                 document.addEventListener('mousemove', e => {
                     cursorGlow.style.left = `${e.clientX}px`;
@@ -745,6 +838,31 @@
             // --- Header Scroll Effect ---
             const header = document.querySelector('.header');
             window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 50));
+
+            // --- Hamburger Menu Logic ---
+            const hamburger = document.querySelector('.hamburger');
+            const navMenu = document.querySelector('.nav-links');
+            const navLinks = navMenu.querySelectorAll('a');
+
+            const toggleNav = () => {
+                hamburger.classList.toggle('active');
+                navMenu.classList.toggle('active');
+                document.body.classList.toggle('nav-open');
+            };
+
+            const closeNav = () => {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+                document.body.classList.remove('nav-open');
+            };
+
+            hamburger.addEventListener('click', toggleNav);
+            navLinks.forEach(link => link.addEventListener('click', () => {
+                if(link.id !== 'account-link' || navMenu.classList.contains('active')) {
+                    closeNav();
+                }
+            }));
+
 
             // --- Interactive Card Flip ---
             document.querySelectorAll('.ingredient-card').forEach(card => {
@@ -879,7 +997,13 @@
                     loginModal.classList.remove('active');
                     document.body.classList.remove('modal-active');
                 };
-                accountLink.addEventListener('click', (e) => { e.preventDefault(); openModal(); });
+                accountLink.addEventListener('click', (e) => { 
+                    e.preventDefault(); 
+                    if (navMenu.classList.contains('active')) {
+                        closeNav();
+                    }
+                    openModal(); 
+                });
                 closeModalBtn.addEventListener('click', closeModal);
                 loginModal.addEventListener('click', (e) => { if (e.target === loginModal) closeModal(); });
             }
